@@ -61,6 +61,10 @@ class RecEvent(object):
     def __init__(self, line):
         [self.Ref, self.Start, self.Stop, self.Type, self.Count, self.Dir, self.CSL, self.CSR, self.Seq1, self.Seq2] = line
         self.Name = self.Start +  "_to_" + self.Stop + "_#_" + self.Count
+        if self.Dir == '-':
+            self.Start, self.Stop = self.Stop, self.Start
+        else:
+            pass
         self.Count = int(self.Count)
         self.Gap = max(int(self.Stop), int(self.Start)) - min(int(self.Stop), int(self.Start)) - 1
         self.CSL = int(self.CSL)
