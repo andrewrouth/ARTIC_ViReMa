@@ -79,12 +79,14 @@ fi
 
 ##Run ViReMa
 if [[ "$STAGING" == *"V"* ]]; then
-	python3 $ScriptPath'ViReMa_0.30/ViReMa.py' $GENOME $1 $Root'_ViReMa.sam' --Output_Dir $Root'_ViReMa' -BED12 --N 2 --X 3 --MicroInDel_Length 5 --Defuzz 0 --p $THREADS --Output_Tag $Root --MaxIters 25 -Overwrite --Chunk 5000000 -Stranded
+	Root=${1%%_merge*}
+	python3 $ScriptPath'ViReMa_0.30/ViReMa.py' $GENOME $Root'_merge.fastq' $Root'_ViReMa.sam' --Output_Dir $Root'_ViReMa' -BED12 --N 2 --X 3 --MicroInDel_Length 5 --Defuzz 0 --p $THREADS --Output_Tag $Root --MaxIters 25 -Overwrite --Chunk 5000000 -Stranded
 fi
 	
 ##Run ViReMa Compilation (e.g. if ViReMa SAM already present, but new compiling issues
 if [[ "$STAGING" == *"C"* ]]; then
-        python3 $ScriptPath'ViReMa_0.30/ViReMa.py' $GENOME $1 $Root'_ViReMa.sam' --Output_Dir $Root'_ViReMa' -BED12 --MicroInDel_Length 5 --Defuzz 0 --Output_Tag $Root -Overwrite -Only_Compile -Stranded
+	Root=${1%%_merge*}
+        python3 $ScriptPath'ViReMa_0.30/ViReMa.py' $GENOME $Root'_merge.fastq' $Root'_ViReMa.sam' --Output_Dir $Root'_ViReMa' -BED12 --MicroInDel_Length 5 --Defuzz 0 --Output_Tag $Root -Overwrite -Only_Compile -Stranded
 fi
 
 ##Make Normalized and coordinated BED files

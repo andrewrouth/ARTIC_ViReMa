@@ -130,7 +130,7 @@ def MainArgs():
                 cfg.Debug_Func = 'All'
         else:
             cfg.Debug = False
-            cfg.Debug_Func = False
+            cfg.Debug_Func = 'None'
         cfg.Lib1 = str(args.Virus_Index)
         bwts = ['.1.ebwt','.2.ebwt','.3.ebwt','.4.ebwt','.rev.1.ebwt','.rev.1.ebwt']
         for i in bwts:

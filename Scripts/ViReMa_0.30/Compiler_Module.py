@@ -352,9 +352,6 @@ def ExtractRefDataBWA():
 ##      -------------------------------------------------------------------------------------------
 
 def AddToDict(Donor, Acceptor, DonorSite, AcceptorSite, Dict, ReadName):
-        if AddToDict.__name__ in cfg.Debug_Func or cfg.Debug_Func == 'All':
-            cfg.Debug.write('AddToDict(Donor, Acceptor, DonorSite, AcceptorSite, ReadName):\n')
-            cfg.Debug.write('\t'.join([Donor, Acceptor, DonorSite, AcceptorSite, ReadName]) + '\n')
         LeftFuzz, RightFuzz, uHomology = 0,0,''
         if cfg.Defuzz:
                 # if "_RevStrand" in Donor:
@@ -377,28 +374,25 @@ def AddToDict(Donor, Acceptor, DonorSite, AcceptorSite, Dict, ReadName):
                 #         else:
                 #                 pass
                 # else:
-                        if int(AcceptorSite) != int(DonorSite) + 1:
-                                LeftFuzz, RightFuzz, uHomology = FindFuzz(Donor, DonorSite, Acceptor, AcceptorSite, (cfg.MaxFuzz+1))
-                                if AddToDict.__name__ in cfg.Debug_Func or cfg.Debug_Func == 'All':
-                                    cfg.Debug.write('LeftFuzz, RightFuzz, uHomology = FindFuzz(Donor, DonorSite, Acceptor, AcceptorSite, (cfg.MaxFuzz+1))\n')
-                                    cfg.Debug.write('\t'.join([str(LeftFuzz), str(RightFuzz), str(uHomology)]) + '\n')
-                                if LeftFuzz != 0 or RightFuzz != 0:
-                                        if cfg.Defuzz == 'Centre':
-                                            if "_RevStrand" in Donor:  ##This is probably more complex than it needs to be and could be revised removes _RevStrand considerations
-                                                Fuzz = RightFuzz - LeftFuzz
-                                            else:
-                                                Fuzz = LeftFuzz - RightFuzz
-                                            ## Use of // forces odd-length Fuzz to 3' end whether Fwd or Rev strand 
-                                            DonorSite = str(int(DonorSite) - (int(Fuzz//2))) 
-                                            AcceptorSite = str(int(AcceptorSite) - (int(Fuzz//2)))
-                                        elif cfg.Defuzz == 'Left':
-                                                DonorSite = str(int(DonorSite) - RightFuzz)
-                                                AcceptorSite = str(int(AcceptorSite) - RightFuzz)
-                                        else: ##Right
-                                                DonorSite = str(int(DonorSite) + LeftFuzz)
-                                                AcceptorSite = str(int(AcceptorSite) + LeftFuzz)
-                        else:
-                                pass
+                if int(AcceptorSite) != int(DonorSite) + 1:
+                        LeftFuzz, RightFuzz, uHomology = FindFuzz(Donor, DonorSite, Acceptor, AcceptorSite, (cfg.MaxFuzz+1))
+                        if LeftFuzz != 0 or RightFuzz != 0:
+                                if cfg.Defuzz == 'Centre':
+                                    if "_RevStrand" in Donor:  ##This is probably more complex than it needs to be and could be revised removes _RevStrand considerations
+                                        Fuzz = RightFuzz - LeftFuzz
+                                    else:
+                                        Fuzz = LeftFuzz - RightFuzz
+                                    ## Use of // forces odd-length Fuzz to 3' end whether Fwd or Rev strand 
+                                    DonorSite = str(int(DonorSite) - (int(Fuzz//2))) 
+                                    AcceptorSite = str(int(AcceptorSite) - (int(Fuzz//2)))
+                                elif cfg.Defuzz == 'Left':
+                                        DonorSite = str(int(DonorSite) - RightFuzz)
+                                        AcceptorSite = str(int(AcceptorSite) - RightFuzz)
+                                else: ##Right
+                                        DonorSite = str(int(DonorSite) + LeftFuzz)
+                                        AcceptorSite = str(int(AcceptorSite) + LeftFuzz)
+                else:
+                        pass
         else:
                 pass
         if RightFuzz + LeftFuzz <= cfg.MaxFuzz:
@@ -1480,7 +1474,7 @@ if __name__ == '__main__':
                 cfg.Debug_Func = 'All'
         else:
             cfg.Debug = False
-            cfg.Debug_Func = False
+            cfg.Debug_Func = 'None'
                                 
         if not cfg.NoViReMa:
             if args.Header:

@@ -24,6 +24,10 @@ class RecEvent(object):
         else:
             [self.Ref, self.Start, self.Stop, 
              self.Type, self.Count, self.Dir] = line
+        if self.Dir == '-':
+            self.Start, self.Stop = self.Stop, self.Start
+        else:
+            pass
         self.Name = Name
         self.Count = int(self.Count)
         self.CSL = int(self.CSL)
