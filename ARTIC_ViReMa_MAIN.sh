@@ -93,5 +93,5 @@ fi
 if [[ "$STAGING" == *"N"* ]]; then
 	python3 $ScriptPath'Transpose_to_WA1-Coords.py' $Root'_pilon/'$Root'.changes' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results.bed' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_WA1coords.bed'
 	python3 $ScriptPath'Combine_unstranded_annotations.py' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_WA1coords.bed' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_WA1coords_noDir.bed' -BED12 -Stranded
-	python3 $ScriptPath'Plot_CS_Freq.py' $Root'_ViReMa/'$Root'_ViReMa' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_WA1coord_noDir.bed' $Root'_pilon/'$Root'.fasta' --MicroInDel_Length 25 -CoVData -Ends --MinCov 100 --MinCount 3
+	python3 $ScriptPath'Plot_CS_Freq.py' $Root'_ViReMa/'$Root'_ViReMa' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_WA1coords_noDir.bed' $Root'_pilon/'$Root'.fasta' --MicroInDel_Length 25 -CoVData -Ends --MinCov 100 --MinCount 3
 fi
