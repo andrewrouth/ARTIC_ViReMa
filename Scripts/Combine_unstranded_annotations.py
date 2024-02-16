@@ -49,7 +49,7 @@ with open(str(args.InBED),'r') as In:
         if Name in Dict:
             Dict[Name].Count += int(Data[4])
             if BED12:
-                if Stranded:    #If -Stranded, then Coverage seperated reported for each stranded
+                if Stranded:    #If -Stranded, then Coverage was seperately reported for each stranded
                     Dict[Name].CSL += int(Data[6])
                     Dict[Name].CSR += int(Data[7])
                 else:           #If not -Stranded, then Coverage will be same for both and already combined

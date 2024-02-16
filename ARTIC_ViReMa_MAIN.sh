@@ -66,6 +66,7 @@ if [[ "$STAGING" == *"B"* ]]; then
 	samtools index $Root'_bwt2.bam' 
 	pilon --fix bases --genome $GENOME --flank 1 --mindepth 10 --frags $Root'_bwt2.bam' --vcf --changes --output $Root --outdir $Root'_pilon'
 	GENOME=$Root'_pilon/'$Root'.fasta'
+	grep PASS $Root'_pilon/'$Root'.vcf' | awk '{OFS=""}{if($5 ~ /[A,T,G,C]/)print $4, $2, $5}' > $Root'.changes.txt'
 fi
 
 #ViReMa Merge Data
@@ -91,7 +92,9 @@ fi
 
 ##Make Normalized and coordinated BED files
 if [[ "$STAGING" == *"N"* ]]; then
-	python3 $ScriptPath'Transpose_to_WA1-Coords.py' $Root'_pilon/'$Root'.changes' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results.bed' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_WA1coords.bed'
-	python3 $ScriptPath'Combine_unstranded_annotations.py' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_WA1coords.bed' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_WA1coords_noDir.bed' -BED12 -Stranded
-	python3 $ScriptPath'Plot_CS_Freq.py' $Root'_ViReMa/'$Root'_ViReMa' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_WA1coords_noDir.bed' $Root'_pilon/'$Root'.fasta' --MicroInDel_Length 25 -CoVData -Ends --MinCov 100 --MinCount 3
+	Root=${1%%_merge*}
+	grep PASS $Root'_pilon/'$Root'.vcf' | awk '{OFS=""}{if($5 ~ /[A,T,G,C]/)print $4, $2, $5}' > $Root'.changes.txt'
+	python3 $ScriptPath'Combine_unstranded_annotations.py' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results.bed' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_noDir.bed' -BED12 -Stranded
+	python3 $ScriptPath'Transpose_to_WA1-Coords.py' $Root'.changes.txt' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_noDir.bed' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_noDir_WA1coords.bed'
+	python3 $ScriptPath'Plot_CS_Freq.py' $Root'_ViReMa/'$Root'_ViReMa' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_noDir_WA1coords.bed' $Root'_pilon/'$Root'.fasta' --MicroInDel_Length 25 -CoVData -Ends --MinCov 100 --MinCount 3
 fi

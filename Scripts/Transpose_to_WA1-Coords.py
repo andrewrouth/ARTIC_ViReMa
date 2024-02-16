@@ -1,7 +1,6 @@
 import argparse
 import re
 cigar_regex = re.compile(r"[^\W\d_]+|\d+")
-import numpy as np
 
 parser = argparse.ArgumentParser()
 parser.add_argument("Changes", help= "Input BED File")
@@ -28,8 +27,6 @@ with open(str(args.Changes),'r') as In:
             Dict[Coord] = -InsSize
         data = In.readline().rstrip()
         
-#print(Dict)
-
 Out = open(str(args.OutBED),'w')
 with open(str(args.InBED),'r') as In:
     Header = In.readline()
@@ -50,29 +47,3 @@ with open(str(args.InBED),'r') as In:
             Out.write('\t'.join(NewLine) + '\n')
             data = In.readline().rstrip().split()
 Out.close()
-
-            
-                
-            
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-
-        
-    
-    
