@@ -60,7 +60,7 @@ echo $Root
 
 ##Initial Mapping
 if [[ "$STAGING" == *"B"* ]]; then
-	bowtie2 -p 16 -x NC_045512.2.fasta -1 $Root'_1.prep.fastq.gz' -2 $Root'_2.prep.fastq.gz' | samtools view -F 4 -buSh - | samtools sort -@ 16 - -o $Root'_bwt2.bam'
+	bowtie2 -p 16 -x NC_045512.2.fasta -1 $Root'_1_prep.fastq.gz' -2 $Root'_2_prep.fastq.gz' | samtools view -F 4 -buSh - | samtools sort -@ 16 - -o $Root'_bwt2.bam'
 	samtools index $Root'_bwt2.bam' 
 	pilon --fix bases --genome $GENOME --flank 5 --mindepth 25 --frags $Root'_bwt2.bam' --vcf --changes --output $Root --outdir $Root'_pilon'
 	GENOME=$Root'_pilon/'$Root'.fasta'
@@ -69,8 +69,8 @@ fi
 
 ##Run ViReMa
 if [[ "$STAGING" == *"V"* ]]; then
-	python3 $ScriptPath'ViReMa_0.32/ViReMa.py' $GENOME $Root'_1.prep.fastq.gz' $Root'_1_ViReMa.sam' --Output_Dir $Root'_1_ViReMa' -BAM -BED12 --N 1 --X 3 --MicroInDel_Length 5 --Defuzz 0 --p $THREADS --Output_Tag $Root'_1' --MaxIters 50 --Chunk 5000000 -Stranded -FuzzEntry --Coverage_Offset 10
-	python3 $ScriptPath'ViReMa_0.32/ViReMa.py' $GENOME $Root'_2.prep.fastq.gz' $Root'_2_ViReMa.sam' --Output_Dir $Root'_2_ViReMa' -BAM -BED12 --N 1 --X 3 --MicroInDel_Length 5 --Defuzz 0 --p $THREADS --Output_Tag $Root'_2' --MaxIters 50 --Chunk 5000000 -Stranded -FuzzEntry --Coverage_Offset 10
+	python3 $ScriptPath'ViReMa_0.32/ViReMa.py' $GENOME $Root'_1_prep.fastq.gz' $Root'_1_ViReMa.sam' --Output_Dir $Root'_1_ViReMa' -BAM -BED12 --N 1 --X 3 --MicroInDel_Length 5 --Defuzz 0 --p $THREADS --Output_Tag $Root'_1' --MaxIters 50 --Chunk 5000000 -Stranded -FuzzEntry --Coverage_Offset 10
+	python3 $ScriptPath'ViReMa_0.32/ViReMa.py' $GENOME $Root'_2_prep.fastq.gz' $Root'_2_ViReMa.sam' --Output_Dir $Root'_2_ViReMa' -BAM -BED12 --N 1 --X 3 --MicroInDel_Length 5 --Defuzz 0 --p $THREADS --Output_Tag $Root'_2' --MaxIters 50 --Chunk 5000000 -Stranded -FuzzEntry --Coverage_Offset 10
 fi
 
 ##Make Normalized and coordinated BED files
