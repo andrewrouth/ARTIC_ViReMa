@@ -7,7 +7,7 @@ USAGE: ./batchscript [OPTIONS] FASTQfile
 e.g. ./ARTIC_ViReMa_Main.sh /path/to/data/mydata_R1.fastq
 
 Required Arguments:
-File	Enter full path of R1 file. Expected to end in '_1.prep.fastq.gz'
+File	Enter full path of R1 file. Expected to end in '_1_prep.fastq.gz'
 
 Optional Arguments:
     -h show this help text
@@ -50,7 +50,7 @@ shift $((OPTIND -1))
 ##REQUIRED INPUT
 FileR1=$1
 FileR2=$2
-DirRoot=${FileR1%%_1.prep.fastq.gz}
+DirRoot=${FileR1%%_1_prep.fastq.gz}
 Root=${DirRoot##*/}
 WKDIR=$0
 ScriptPath=${WKDIR%/*}'/Scripts/'
