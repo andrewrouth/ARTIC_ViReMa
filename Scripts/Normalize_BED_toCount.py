@@ -46,7 +46,7 @@ class RecEvent(object):
 
 Events = {}
 Refs = set()
-with open(str(args.Root + '_ViReMa_comb_Recombination_Results.bed'), "r") as In:
+with open(str(args.Root + '_ViReMa_comb_Recombination_Results_noDir_WA1coords.bed'), "r") as In:
     Header = In.readline()
     Data = In.readline()
     while Data:
