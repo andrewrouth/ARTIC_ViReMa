@@ -54,7 +54,6 @@ DirRoot=${FileR1%%_1_prep.fastq.gz}
 Root=${DirRoot##*/}
 WKDIR=$0
 ScriptPath=${WKDIR%/*}'/Scripts/'
-echo $File
 echo $DirRoot
 echo $Root
 
