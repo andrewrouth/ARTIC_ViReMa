@@ -7,15 +7,14 @@ USAGE: ./batchscript [OPTIONS] FASTQfile
 e.g. ./ARTIC_ViReMa_Main.sh /path/to/data/mydata_R1.fastq
 
 Required Arguments:
-File	Enter full path of R1 file. Expected to end in *_L00?* (i.e. the lane number)
+File	Enter full path of R1 file. Expected to end in '_1.prep.fastq.gz'
 
 Optional Arguments:
     -h show this help text
 
-    -p Perform custom stages; select combination of P, M, R, C, D. No whitespace, e.g. 'PM'.
+    -p Perform custom stages; select combination of P, R, C, D. No whitespace, e.g. 'PM'.
             (default = PM: Preprocess and map)
         B Perform bowtie2/pilon reconstruction
-        M Merge R1 and R2 data
         V Do ViReMa mapping
 	C Repeat ViReMa Compilation Steps - if SAM file already present (must ungzipped).
 	N Normalize Recombination Rates
@@ -26,7 +25,7 @@ Optional Arguments:
     "
 
 GENOME='NC_045512.2.fasta'
-STAGING='PMV'
+STAGING='PV'
 THREADS=1
 while getopts 'hp:t:g:' option; do
   case "$option" in
@@ -51,7 +50,7 @@ shift $((OPTIND -1))
 ##REQUIRED INPUT
 FileR1=$1
 FileR2=$2
-DirRoot=${FileR1%%_L00*}
+DirRoot=${FileR1%%_1.prep.fastq.gz}
 Root=${DirRoot##*/}
 WKDIR=$0
 ScriptPath=${WKDIR%/*}'/Scripts/'
@@ -59,42 +58,31 @@ echo $File
 echo $DirRoot
 echo $Root
 
-
 ##Initial Mapping
 if [[ "$STAGING" == *"B"* ]]; then
-	bowtie2 -p 16 -x NC_045512.2.fasta -1 FileR1 -2 FileR2 | samtools view -buSh - | samtools sort -@ 16 - -o $Root'_bwt2.bam'
+	bowtie2 -p 16 -x NC_045512.2.fasta -1 FileR1 -2 FileR2 | samtools view -F 4 -buSh - | samtools sort -@ 16 - -o $Root'_bwt2.bam'
 	samtools index $Root'_bwt2.bam' 
-	pilon --fix bases --genome $GENOME --flank 1 --mindepth 10 --frags $Root'_bwt2.bam' --vcf --changes --output $Root --outdir $Root'_pilon'
+	pilon --fix bases --genome $GENOME --flank 5 --mindepth 25 --frags $Root'_bwt2.bam' --vcf --changes --output $Root --outdir $Root'_pilon'
 	GENOME=$Root'_pilon/'$Root'.fasta'
 	grep PASS $Root'_pilon/'$Root'.vcf' | awk '{OFS=""}{if($5 ~ /[A,T,G,C]/)print $4, $2, $5}' > $Root'.changes.txt'
 fi
 
-#ViReMa Merge Data
-if [[ "$STAGING" == *"M"* ]]; then
-	gunzip -dc $1 > $Root'_merge.fastq'
-	gunzip -dc $2 >> $Root'_merge.fastq'
-	sed -i 's/\ 1\:N\:/_1\:N\:/g' $Root'_merge.fastq'
-	sed -i 's/\ 2\:N\:/_2\:N\:/g' $Root'_merge.fastq'
-	gzip $Root'_merge.fastq'
-fi
-
 ##Run ViReMa
 if [[ "$STAGING" == *"V"* ]]; then
-	Root=${1%%_merge*}
-	python3 $ScriptPath'ViReMa_0.30/ViReMa.py' $GENOME $Root'_merge.fastq' $Root'_ViReMa.sam' --Output_Dir $Root'_ViReMa' -BED12 --N 2 --X 3 --MicroInDel_Length 5 --Defuzz 0 --p $THREADS --Output_Tag $Root --MaxIters 25 -Overwrite --Chunk 5000000 -Stranded
-fi
-	
-##Run ViReMa Compilation (e.g. if ViReMa SAM already present, but new compiling issues
-if [[ "$STAGING" == *"C"* ]]; then
-	Root=${1%%_merge*}
-        python3 $ScriptPath'ViReMa_0.30/ViReMa.py' $GENOME $Root'_merge.fastq' $Root'_ViReMa.sam' --Output_Dir $Root'_ViReMa' -BED12 --MicroInDel_Length 5 --Defuzz 0 --Output_Tag $Root -Overwrite -Only_Compile -Stranded
+	python3 $ScriptPath'ViReMa_0.32/ViReMa.py' $GENOME FileR1 $Root'_1_ViReMa.sam' --Output_Dir $Root'_1_ViReMa' -BAM -BED12 --N 1 --X 3 --MicroInDel_Length 5 --Defuzz 0 --p $THREADS --Output_Tag $Root'_1' --MaxIters 50 --Chunk 5000000 -Stranded -FuzzEntry --Coverage_Offset 10
+	python3 $ScriptPath'ViReMa_0.32/ViReMa.py' $GENOME FileR2 $Root'_2_ViReMa.sam' --Output_Dir $Root'_2_ViReMa' -BAM -BED12 --N 1 --X 3 --MicroInDel_Length 5 --Defuzz 0 --p $THREADS --Output_Tag $Root'_2' --MaxIters 50 --Chunk 5000000 -Stranded -FuzzEntry --Coverage_Offset 10
 fi
 
 ##Make Normalized and coordinated BED files
 if [[ "$STAGING" == *"N"* ]]; then
-	Root=${1%%_merge*}
-	grep PASS $Root'_pilon/'$Root'.vcf' | awk '{OFS=""}{if($5 ~ /[A,T,G,C]/)print $4, $2, $5}' > $Root'.changes.txt'
-	python3 $ScriptPath'Combine_unstranded_annotations.py' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results.bed' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_noDir.bed' -BED12 -Stranded
-	python3 $ScriptPath'Transpose_to_WA1-Coords.py' $Root'.changes.txt' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_noDir.bed' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_noDir_WA1coords.bed'
-	python3 $ScriptPath'Plot_CS_Freq.py' $Root'_ViReMa/'$Root'_ViReMa' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_noDir_WA1coords.bed' $Root'_pilon/'$Root'.fasta' --MicroInDel_Length 25 -CoVData -Ends --MinCov 100 --MinCount 3
+	#python3 $ScriptPath'Combine_unstranded_annotations.py' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results.bed' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_noDir.bed' -BED12 -Stranded
+	
+ 	python3 Combine_unstranded_annotations.py $Root'_1_ViReMa/BED_Files/'$Root'_1_Virus_Recombination_Results.bed' temp1.bed -CountCombine
+	python3 Combine_unstranded_annotations.py $Root'_2_ViReMa/BED_Files/'$Root'_2_Virus_Recombination_Results.bed' temp2.bed -CountCombine
+	cat temp1.bed temp2.bed > temp3.bed
+	python3 Combine_unstranded_annotations.py temp3.bed $Root'_ViReMa_comb_Recombination_Results.bed' -CountCombine
+	python3 $ScriptPath'Transpose_to_WA1-Coords.py' $Root'.changes.txt' $Root'_ViReMa_comb_Recombination_Results_noDir.bed' $Root'_ViReMa_comb_Recombination_Results_noDir_WA1coords.bed'
+	python3 Normalize_BED_toCount.py $Root --MicroInDel_Length 25
+ 
+	#python3 $ScriptPath'Plot_CS_Freq.py' $Root'_ViReMa/'$Root'_ViReMa' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_noDir_WA1coords.bed' $Root'_pilon/'$Root'.fasta' --MicroInDel_Length 25 -CoVData -Ends --MinCov 100 --MinCount 3
 fi
