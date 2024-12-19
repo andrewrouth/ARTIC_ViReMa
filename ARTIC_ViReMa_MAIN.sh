@@ -76,12 +76,12 @@ fi
 if [[ "$STAGING" == *"N"* ]]; then
 	#python3 $ScriptPath'Combine_unstranded_annotations.py' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results.bed' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_noDir.bed' -BED12 -Stranded
 	
- 	python3 Combine_unstranded_annotations.py $Root'_1_ViReMa/BED_Files/'$Root'_1_Virus_Recombination_Results.bed' temp1.bed -CountCombine
-	python3 Combine_unstranded_annotations.py $Root'_2_ViReMa/BED_Files/'$Root'_2_Virus_Recombination_Results.bed' temp2.bed -CountCombine
+ 	python3 $ScriptPath'Combine_unstranded_annotations.py' $Root'_1_ViReMa/BED_Files/'$Root'_1_Virus_Recombination_Results.bed' temp1.bed -CountCombine
+	python3 $ScriptPath'Combine_unstranded_annotations.py' $Root'_2_ViReMa/BED_Files/'$Root'_2_Virus_Recombination_Results.bed' temp2.bed -CountCombine
 	cat temp1.bed temp2.bed > temp3.bed
-	python3 Combine_unstranded_annotations.py temp3.bed $Root'_ViReMa_comb_Recombination_Results.bed' -CountCombine
+	python3 $ScriptPath'Combine_unstranded_annotations.py' temp3.bed $Root'_ViReMa_comb_Recombination_Results.bed' -CountCombine
 	python3 $ScriptPath'Transpose_to_WA1-Coords.py' $Root'.changes.txt' $Root'_ViReMa_comb_Recombination_Results_noDir.bed' $Root'_ViReMa_comb_Recombination_Results_noDir_WA1coords.bed'
-	python3 Normalize_BED_toCount.py $Root --MicroInDel_Length 25
+	python3 $ScriptPath'Normalize_BED_toCount.py' $Root --MicroInDel_Length 25
  
 	#python3 $ScriptPath'Plot_CS_Freq.py' $Root'_ViReMa/'$Root'_ViReMa' $Root'_ViReMa/BED_Files/'$Root'_Virus_Recombination_Results_noDir_WA1coords.bed' $Root'_pilon/'$Root'.fasta' --MicroInDel_Length 25 -CoVData -Ends --MinCov 100 --MinCount 3
 fi
