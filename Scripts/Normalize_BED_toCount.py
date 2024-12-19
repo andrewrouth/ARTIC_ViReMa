@@ -66,15 +66,15 @@ for Lib in Events:
     for Name in Events[Lib]:
         if Events[Lib][Name].Type != 'NoCov':
             if Events[Lib][Name].Gap <= MicroInDel_Length:
-                if int(Events[Lib][Name].Start) + 1 < int(Events[Lib][Name].Stop):
-                    Events[Lib][Name].Type = 'uDel'
-                else:
-                    Events[Lib][Name].Type = 'uIns'
-            else:  ##DVG
-                if int(Events[Lib][Name].Start) < int(Events[Lib][Name].Stop):
-                    Events[Lib][Name].Type = 'Deletion'
-                else:
-                    Events[Lib][Name].Type = 'Insertion'
+                #if int(Events[Lib][Name].Start) + 1 < int(Events[Lib][Name].Stop):
+                Events[Lib][Name].Type = 'u' + Events[Lib][Name].Type
+            else:
+                Events[Lib][Name].Type = Events[Lib][Name].Type
+            #else:  ##DVG
+                #if int(Events[Lib][Name].Start) < int(Events[Lib][Name].Stop):
+                    #Events[Lib][Name].Type = Events[Lib][Name].Type
+                #else:
+                    #Events[Lib][Name].Type = 'Insertion'
             Temp.append([Events[Lib][Name].Ref, Events[Lib][Name].Start, Events[Lib][Name].Stop, 
                          Events[Lib][Name].Type, str(Events[Lib][Name].BCount), Events[Lib][Name].Dir])
         else:
