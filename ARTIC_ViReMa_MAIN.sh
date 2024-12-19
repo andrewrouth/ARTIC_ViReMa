@@ -59,7 +59,7 @@ echo $Root
 
 ##Initial Mapping
 if [[ "$STAGING" == *"B"* ]]; then
-	bowtie2 -p 16 -x NC_045512.2.fasta -1 $Root'_1_prep.fastq.gz' -2 $Root'_2_prep.fastq.gz' | samtools view -F 4 -buSh - | samtools sort -@ 16 - -o $Root'_bwt2.bam'
+	bowtie2 -p 16 -x $GENOME -1 $Root'_1_prep.fastq.gz' -2 $Root'_2_prep.fastq.gz' | samtools view -F 4 -buSh - | samtools sort -@ 16 - -o $Root'_bwt2.bam'
 	samtools index $Root'_bwt2.bam' 
 	pilon --fix bases --genome $GENOME --flank 5 --mindepth 25 --frags $Root'_bwt2.bam' --vcf --changes --output $Root --outdir $Root'_pilon'
 	GENOME=$Root'_pilon/'$Root'.fasta'
